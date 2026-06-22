@@ -547,19 +547,20 @@ function submitForm() {
 
   // Formspree로 전송
   // ⚠️ 아래 URL의 FORMSPREE_ID를 실제 Formspree Form ID로 교체하세요
+  var formData = new FormData();
+  formData.append('_subject', subject);
+  formData.append('_replyto', d.email);
+  formData.append('message', body);
+  formData.append('회사명', d.company);
+  formData.append('대표제품', d.products);
+  formData.append('업종', d.industry);
+  formData.append('연락처', d.tel);
+  formData.append('이메일', d.email);
+
   fetch('https://formspree.io/f/xgojevjg', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({
-      _subject: subject,
-      _replyto: d.email,
-      message: body,
-      회사명: d.company,
-      대표제품: d.products,
-      업종: d.industry,
-      연락처: d.tel,
-      이메일: d.email,
-    })
+    headers: { 'Accept': 'application/json' },
+    body: formData
   })
   .then(function(res) {
     document.getElementById('sendingOverlay').classList.remove('open');
