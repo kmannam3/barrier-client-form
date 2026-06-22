@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>barrier · 홈페이지 제작 상담 질문지</title>
+<style>
+  :root {
+    --navy: #1B3F6B;
+    --orange: #E87722;
+    --lightblue: #EEF2F7;
+    --gray: #555;
+    --lightgray: #F5F7FA;
+    --border: #D0D7E0;
+    --green: #1A7A3C;
+    --red: #CC0000;
+    --white: #fff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif; background: #F0F4F8; color: #222; font-size: 15px; }
+
+  .top-bar { background: var(--navy); color: white; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+  .top-bar .logo { font-size: 20px; font-weight: 700; color: var(--orange); letter-spacing: -0.5px; }
+  .top-bar .subtitle { font-size: 13px; color: #aac4e0; }
+  .progress-wrap { background: #15335a; padding: 8px 24px; }
+  .progress-bar { height: 4px; background: #2a5080; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--orange); border-radius: 2px; transition: width 0.4s ease; width: 0%; }
+  .progress-text { font-size: 12px; color: #aac4e0; margin-top: 4px; text-align: right; }
+
+  .hero { background: linear-gradient(135deg, var(--navy) 0%, #2a5a9a 100%); color: white; padding: 40px 24px 32px; text-align: center; }
+  .hero h1 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .hero p { font-size: 14px; color: #aac4e0; line-height: 1.6; }
+  .hero .guide-box { background: rgba(255,255,255,0.1); border-radius: 10px; padding: 16px 20px; margin-top: 20px; text-align: left; font-size: 13px; color: #cde; line-height: 1.8; }
+
+  .container { max-width: 720px; margin: 0 auto; padding: 24px 16px 100px; }
+
+  .section-divider { display: flex; align-items: center; margin: 32px 0 16px; }
+  .section-divider .label { background: var(--navy); color: white; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; white-space: nowrap; }
+  .section-divider .line { flex: 1; height: 1px; background: var(--border); margin-left: 10px; }
+
+  .field-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 14px; border: 1.5px solid var(--border); transition: border-color 0.2s; }
+  .field-card:focus-within { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(27,63,107,0.08); }
+  .field-card.required-card { border-left: 4px solid var(--orange); }
+  .field-card.optional-card { border-left: 4px solid var(--border); }
+  .field-card.filled { border-left-color: var(--green); }
+
+  .field-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .field-num { font-size: 12px; font-weight: 700; color: var(--navy); background: var(--lightblue); padding: 2px 8px; border-radius: 4px; }
+  .field-label { font-size: 15px; font-weight: 700; color: var(--navy); flex: 1; }
+  .badge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+  .badge.req { background: var(--orange); color: white; }
+  .badge.opt { background: #E8EDF2; color: #666; }
+
+  .field-guide { font-size: 13px; color: #888; margin-bottom: 10px; line-height: 1.5; }
+  .field-example { font-size: 12px; color: #aaa; margin-bottom: 10px; font-style: italic; }
+
+  input[type=text], textarea, select {
+    width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+    padding: 10px 14px; font-size: 14px; font-family: inherit;
+    color: #222; background: var(--lightgray); transition: border-color 0.2s, background 0.2s;
+    resize: vertical;
+  }
+  input[type=text]:focus, textarea:focus { outline: none; border-color: var(--navy); background: white; }
+  textarea { min-height: 80px; }
+
+  .industry-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .industry-btn { border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 13px; cursor: pointer; background: var(--lightgray); color: #555; text-align: center; transition: all 0.2s; user-select: none; }
+  .industry-btn.selected { background: var(--navy); color: white; border-color: var(--navy); font-weight: 700; }
+  .industry-btn:hover:not(.selected) { border-color: var(--navy); background: var(--lightblue); }
+
+  .mood-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  .mood-btn { border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 16px; font-size: 13px; cursor: pointer; background: var(--lightgray); color: #555; transition: all 0.2s; user-select: none; }
+  .mood-btn .mood-title { font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+  .mood-btn .mood-desc { font-size: 12px; color: #888; }
+  .mood-btn.selected { background: var(--navy); border-color: var(--navy); }
+  .mood-btn.selected .mood-title, .mood-btn.selected .mood-desc { color: white; }
+
+  .photo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .photo-btn { border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 13px; cursor: pointer; background: var(--lightgray); color: #555; text-align: center; transition: all 0.2s; user-select: none; }
+  .photo-btn.selected { background: var(--green); color: white; border-color: var(--green); }
+
+  .char-count { text-align: right; font-size: 11px; color: #bbb; margin-top: 4px; }
+  .char-count.warn { color: var(--orange); }
+
+  /* 하단 액션바 */
+  .action-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid var(--border); padding: 12px 16px; display: flex; gap: 10px; z-index: 100; box-shadow: 0 -2px 12px rgba(0,0,0,0.08); }
+  .btn-submit { flex: 1; background: var(--orange); color: white; border: none; border-radius: 10px; padding: 16px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn-submit:hover { background: #d06a18; }
+  .btn-submit:active { background: #b85e14; }
+  .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
+  .btn-reset { background: #E8EDF2; color: #666; border: none; border-radius: 10px; padding: 16px 18px; font-size: 14px; cursor: pointer; font-family: inherit; }
+  .btn-reset:hover { background: #d0d7e0; }
+
+  /* 전송 중 오버레이 */
+  .sending-overlay { display: none; position: fixed; inset: 0; background: rgba(27,63,107,0.85); z-index: 300; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+  .sending-overlay.open { display: flex; }
+  .spinner { width: 48px; height: 48px; border: 4px solid rgba(255,255,255,0.3); border-top-color: var(--orange); border-radius: 50%; animation: spin 0.9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .sending-text { color: white; font-size: 17px; font-weight: 700; }
+  .sending-sub { color: #aac4e0; font-size: 13px; }
+
+  /* 완료 화면 */
+  .done-screen { display: none; position: fixed; inset: 0; background: white; z-index: 400; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; text-align: center; }
+  .done-screen.open { display: flex; }
+  .done-icon { font-size: 64px; margin-bottom: 20px; }
+  .done-title { font-size: 24px; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
+  .done-sub { font-size: 15px; color: #888; line-height: 1.7; margin-bottom: 32px; }
+  .done-company { font-size: 18px; font-weight: 700; color: var(--orange); background: var(--lightblue); padding: 10px 24px; border-radius: 50px; margin-bottom: 32px; }
+  .btn-done { background: var(--navy); color: white; border: none; border-radius: 10px; padding: 14px 40px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; }
+
+  /* 오류 토스트 */
+  .toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%) translateY(-20px); padding: 12px 24px; border-radius: 50px; font-size: 14px; font-weight: 700; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 500; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.error { background: var(--red); color: white; }
+  .toast.success { background: var(--green); color: white; }
+
+  /* 필수항목 미입력 경고 */
+  .field-card.error-card { border-left-color: var(--red) !important; animation: shake 0.3s ease; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+  @media (min-width: 600px) {
+    .industry-grid { grid-template-columns: repeat(3, 1fr); }
+    .photo-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div>
+    <div class="logo">barrier</div>
+    <div class="subtitle">홈페이지 제작 상담 질문지</div>
+  </div>
+  <div style="font-size:13px;color:#aac4e0;">barrierzone.kr</div>
+</div>
+<div class="progress-wrap">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-text" id="progressText">필수 항목 0 / 8 완료</div>
+</div>
+
+<div class="hero">
+  <h1>홈페이지 제작 상담 질문지</h1>
+  <p>아래 항목을 작성 후 하단의 <strong style="color:#E87722;">제출하기</strong> 버튼을 눌러주세요.<br>작성 내용이 barrier 담당자에게 바로 전달됩니다.</p>
+  <div class="guide-box">
+    ✔ 필수 항목(주황 테두리)만 작성해도 제출 가능합니다<br>
+    ✔ 선택 항목은 추가하실수록 홈페이지 품질이 높아집니다<br>
+    ✔ 제출 후 영업일 기준 1일 이내 담당자가 연락드립니다
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="section-divider">
+    <span class="label">📋 필수 항목 (8개)</span>
+    <div class="line"></div>
+  </div>
+
+  <!-- F-01 회사명 -->
+  <div class="field-card required-card" id="card-01">
+    <div class="field-header">
+      <span class="field-num">F-01</span>
+      <span class="field-label">회사명</span>
+      <span class="badge req">필수</span>
+    </div>
+    <div class="field-guide">등기 상 정식 회사명으로 기재해주세요.</div>
+    <input type="text" id="f01" placeholder="예: (주)한성유압, 대한정밀, 나사왕" oninput="updateProgress(); autoFill(this,'card-01')">
+  </div>
+
+  <!-- F-02 대표 제품 -->
+  <div class="field-card required-card" id="card-02">
+    <div class="field-header">
+      <span class="field-num">F-02</span>
+      <span class="field-label">대표 제품 / 서비스</span>
+      <span class="badge req">필수</span>
+    </div>
+    <div class="field-guide">가장 많이 납품하는 제품이나 서비스를 2~4가지 적어주세요.</div>
+    <div class="field-example">예: 유압실린더(커스텀), SUS 정밀가공, M10~M64 볼트</div>
+    <textarea id="f02" placeholder="제품 또는 서비스를 입력하세요" oninput="updateProgress(); autoFill(this,'card-02'); countChar(this,'cnt02')"></textarea>
+    <div class="char-count" id="cnt02">0자</div>
+  </div>
+
+  <!-- F-03 업종 -->
+  <div class="field-card required-card" id="card-03">
+    <div class="field-header">
+      <span class="field-num">F-03</span>
+      <span class="field-label">주요 업종</span>
+      <span class="badge req">필수</span>
+    </div>
+    <div class="field-guide">해당하는 업종을 선택해주세요. (복수 선택 가능)</div>
+    <div class="industry-grid" id="industryGrid">
+      <div class="industry-btn" onclick="toggleBtn(this,'industryGrid',true)">CNC / 정밀가공</div>
+      <div class="industry-btn" onclick="toggleBtn(this,'industryGrid',true)">유압실린더</div>
+      <div class="industry-btn" onclick="toggleBtn(this,'industryGrid',true)">볼트 / 너트 / 스프링</div>
+      <div class="industry-btn" onclick="toggleBtn(this,'industryGrid',true)">판금 / 용접</div>
+      <div class="industry-btn" onclick="toggleBtn(this,'industryGrid',true)">금형</div>
+      <div class="industry-btn" onclick="toggleBtn(this,'industryGrid',true)">표면처리</div>
+      <div class="industry-btn" onclick="toggleBtn(this,'industryGrid',true)">자동화설비</div>
+      <div class="industry-btn" onclick="toggleBtn(this,'industryGrid',true)">주조 / 단조</div>
+      <div class="industry-btn" onclick="toggleBtn(this,'industryGrid',true)">열처리</div>
+      <div class="industry-btn" onclick="toggleBtn(this,'industryGrid',true)">배관 / 플랜트</div>
+    </div>
+    <input type="text" id="f03extra" placeholder="기타 업종이 있으면 직접 입력" style="margin-top:10px;" oninput="updateProgress()">
+  </div>
+
+  <!-- F-04 강점 -->
+  <div class="field-card required-card" id="card-04">
+    <div class="field-header">
+      <span class="field-num">F-04</span>
+      <span class="field-label">회사 강점 3가지 이상</span>
+      <span class="badge req">필수</span>
+    </div>
+    <div class="field-guide">경쟁사와 다른 점, 잘하는 것을 구체적으로 적어주세요.</div>
+    <div class="field-example">예: 소량 1개부터 납품 가능 / 납기 준수율 99% / 도면 검토 후 공정 제안</div>
+    <textarea id="f04" placeholder="강점을 입력하세요" oninput="updateProgress(); autoFill(this,'card-04'); countChar(this,'cnt04')"></textarea>
+    <div class="char-count" id="cnt04">0자</div>
+  </div>
+
+  <!-- F-05 납품 대상 -->
+  <div class="field-card required-card" id="card-05">
+    <div class="field-header">
+      <span class="field-num">F-05</span>
+      <span class="field-label">주요 납품 대상 업종</span>
+      <span class="badge req">필수</span>
+    </div>
+    <div class="field-guide">어떤 업종의 회사에 납품하고 있나요?</div>
+    <div class="field-example">예: 자동차부품, 반도체장비, 조선소 협력사, 식품기계</div>
+    <textarea id="f05" placeholder="납품 대상 업종을 입력하세요" rows="2" oninput="updateProgress(); autoFill(this,'card-05')"></textarea>
+  </div>
+
+  <!-- F-06 설비 -->
+  <div class="field-card required-card" id="card-06">
+    <div class="field-header">
+      <span class="field-num">F-06</span>
+      <span class="field-label">보유 설비</span>
+      <span class="badge req">필수</span>
+    </div>
+    <div class="field-guide">주요 장비명과 대수를 기재해주세요. 정확한 모델명 없어도 됩니다.</div>
+    <div class="field-example">예: CNC 선반 5대, 머시닝센터 2대, 와이어컷 1대</div>
+    <textarea id="f06" placeholder="보유 설비를 입력하세요" oninput="updateProgress(); autoFill(this,'card-06'); countChar(this,'cnt06')"></textarea>
+    <div class="char-count" id="cnt06">0자</div>
+  </div>
+
+  <!-- F-07 연락처 -->
+  <div class="field-card required-card" id="card-07">
+    <div class="field-header">
+      <span class="field-num">F-07</span>
+      <span class="field-label">연락처</span>
+      <span class="badge req">필수</span>
+    </div>
+    <div class="field-guide">전화번호는 홈페이지에 크게 표시됩니다. 정확하게 입력해주세요.</div>
+    <input type="text" id="f07tel" placeholder="전화번호  예: 032-123-4567" style="margin-bottom:8px;" oninput="updateProgress(); autoFill(this,'card-07')">
+    <input type="text" id="f07email" placeholder="이메일  예: info@company.com" style="margin-bottom:8px;" oninput="updateProgress()">
+    <input type="text" id="f07kakao" placeholder="카카오 채널 또는 오픈채팅 링크 (없으면 공란)" oninput="updateProgress()">
+  </div>
+
+  <!-- F-08 주소 -->
+  <div class="field-card required-card" id="card-08">
+    <div class="field-header">
+      <span class="field-num">F-08</span>
+      <span class="field-label">주소</span>
+      <span class="badge req">필수</span>
+    </div>
+    <div class="field-guide">공장 또는 사무실 도로명 주소를 입력해주세요.</div>
+    <input type="text" id="f08" placeholder="예: 인천광역시 남동구 논현동 630 남동공단" oninput="updateProgress(); autoFill(this,'card-08')">
+  </div>
+
+  <!-- 선택 항목 -->
+  <div class="section-divider">
+    <span class="label">⭐ 선택 항목 (7개)</span>
+    <div class="line"></div>
+  </div>
+  <p style="font-size:13px;color:#888;margin-bottom:16px;">입력할수록 홈페이지 원고 품질이 높아집니다. 없는 항목은 공란으로 두세요.</p>
+
+  <div class="field-card optional-card" id="card-09">
+    <div class="field-header"><span class="field-num">F-09</span><span class="field-label">설립연도 / 업력</span><span class="badge opt">선택</span></div>
+    <input type="text" id="f09" placeholder="예: 2003년 설립 (22년 업력)" oninput="autoFill(this,'card-09')">
+  </div>
+
+  <div class="field-card optional-card" id="card-10">
+    <div class="field-header"><span class="field-num">F-10</span><span class="field-label">직원 수</span><span class="badge opt">선택</span></div>
+    <input type="text" id="f10" placeholder="예: 약 15명  (±5 범위 가능)" oninput="autoFill(this,'card-10')">
+  </div>
+
+  <div class="field-card optional-card" id="card-11">
+    <div class="field-header"><span class="field-num">F-11</span><span class="field-label">인증 / 특허</span><span class="badge opt">선택</span></div>
+    <div class="field-guide">없으시면 "없음"으로 기재해주세요.</div>
+    <textarea id="f11" placeholder="예: ISO 9001:2015 (한국품질재단), 특허 제10-XXXXXXX호 / 없음" rows="2" oninput="autoFill(this,'card-11')"></textarea>
+  </div>
+
+  <div class="field-card optional-card" id="card-12">
+    <div class="field-header"><span class="field-num">F-12</span><span class="field-label">납품 실적 / 거래처</span><span class="badge opt">선택</span></div>
+    <div class="field-guide">공개 동의한 거래처명 또는 업종명을 기재해주세요.</div>
+    <div class="field-example">예: 현대로템 협력사, 자동차부품 제조사 30곳 이상 / 비공개</div>
+    <textarea id="f12" placeholder="거래처명 또는 업종명" rows="2" oninput="autoFill(this,'card-12')"></textarea>
+  </div>
+
+  <div class="field-card optional-card" id="card-13">
+    <div class="field-header"><span class="field-num">F-13</span><span class="field-label">가공 정밀도 / 생산 규격</span><span class="badge opt">선택</span></div>
+    <div class="field-example">예: ±0.01mm, 최대 Ø500×1500mm</div>
+    <input type="text" id="f13" placeholder="정밀도 또는 생산 가능 규격" oninput="autoFill(this,'card-13')">
+  </div>
+
+  <div class="field-card optional-card" id="card-14">
+    <div class="field-header"><span class="field-num">F-14</span><span class="field-label">원하는 분위기</span><span class="badge opt">선택</span></div>
+    <div class="field-guide">홈페이지 전체 느낌을 선택해주세요. (복수 선택 가능)</div>
+    <div class="mood-grid" id="moodGrid">
+      <div class="mood-btn" onclick="toggleBtn(this,'moodGrid',true)">
+        <div class="mood-title">① 깔끔하고 신뢰감 있는 느낌</div>
+        <div class="mood-desc">군더더기 없이 정보 중심, 네이비/화이트 계열</div>
+      </div>
+      <div class="mood-btn" onclick="toggleBtn(this,'moodGrid',true)">
+        <div class="mood-title">② 강하고 남성적인 느낌</div>
+        <div class="mood-desc">다크 계열, 기술력과 힘이 느껴지는 톤</div>
+      </div>
+      <div class="mood-btn" onclick="toggleBtn(this,'moodGrid',true)">
+        <div class="mood-title">③ 기술력 강조 느낌</div>
+        <div class="mood-desc">정밀도, 스펙, 도면이 부각되는 구성</div>
+      </div>
+      <div class="mood-btn" onclick="toggleBtn(this,'moodGrid',true)">
+        <div class="mood-title">④ 밝고 깔끔한 느낌</div>
+        <div class="mood-desc">화이트 베이스, 접근하기 쉬운 인상</div>
+      </div>
+    </div>
+    <input type="text" id="f14ref" placeholder="참고 사이트 URL이 있으면 입력해주세요" style="margin-top:10px;" oninput="autoFill(this,'card-14')">
+  </div>
+
+  <div class="field-card optional-card" id="card-15">
+    <div class="field-header"><span class="field-num">F-15</span><span class="field-label">강조하고 싶은 문구</span><span class="badge opt">선택</span></div>
+    <div class="field-guide">명함이나 브로셔에 쓰던 슬로건, 꼭 넣고 싶은 표현이 있으면 적어주세요.</div>
+    <div class="field-example">예: "도면 하나로 완성까지" / 없으면 공란</div>
+    <input type="text" id="f15" placeholder="강조 문구 (없으면 공란)" oninput="autoFill(this,'card-15')">
+  </div>
+
+  <div style="height:20px;"></div>
+</div>
+
+<!-- 하단 액션바 -->
+<div class="action-bar">
+  <button class="btn-reset" onclick="resetForm()">초기화</button>
+  <button class="btn-submit" id="btnSubmit" onclick="submitForm()">
+    <span>📨</span><span>제출하기</span>
+  </button>
+</div>
+
+<!-- 전송 중 오버레이 -->
+<div class="sending-overlay" id="sendingOverlay">
+  <div class="spinner"></div>
+  <div class="sending-text">전송 중입니다...</div>
+  <div class="sending-sub">잠시만 기다려주세요</div>
+</div>
+
+<!-- 완료 화면 -->
+<div class="done-screen" id="doneScreen">
+  <div class="done-icon">✅</div>
+  <div class="done-title">제출 완료!</div>
+  <div class="done-company" id="doneCompany"></div>
+  <div class="done-sub">상담 질문지가 barrier 담당자에게 전달되었습니다.<br>영업일 기준 1일 이내 연락드리겠습니다.<br><br>감사합니다 🙏</div>
+  <button class="btn-done" onclick="location.reload()">처음으로 돌아가기</button>
+</div>
+
+<!-- 토스트 -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── 유틸 ────────────────────────────────────────────────
+function countChar(el, id) {
+  var cnt = el.value.length;
+  var el2 = document.getElementById(id);
+  el2.textContent = cnt + '자';
+  el2.className = 'char-count' + (cnt > 200 ? ' warn' : '');
+}
+
+function autoFill(el, cardId) {
+  var card = document.getElementById(cardId);
+  if (el.value.trim().length > 0) card.classList.add('filled');
+  else card.classList.remove('filled');
+}
+
+function toggleBtn(el, gridId, multi) {
+  if (multi) {
+    el.classList.toggle('selected');
+  } else {
+    document.getElementById(gridId).querySelectorAll('[class*="-btn"]').forEach(function(b){ b.classList.remove('selected'); });
+    el.classList.add('selected');
+  }
+  updateProgress();
+  // 업종 카드 filled 처리
+  var anySelected = document.getElementById('industryGrid').querySelectorAll('.selected').length > 0;
+  var card03 = document.getElementById('card-03');
+  if (anySelected) card03.classList.add('filled');
+  else card03.classList.remove('filled');
+}
+
+function getSelected(gridId) {
+  var selected = [];
+  document.getElementById(gridId).querySelectorAll('.selected').forEach(function(b){
+    var title = b.querySelector('.mood-title');
+    selected.push(title ? title.textContent : b.textContent.trim());
+  });
+  return selected.join(', ');
+}
+
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type || 'error') + ' show';
+  setTimeout(function(){ t.classList.remove('show'); }, 3000);
+}
+
+// ── 진행률 ──────────────────────────────────────────────
+var requiredFields = ['f01','f02','f04','f05','f06','f07tel','f07email','f08'];
+
+function updateProgress() {
+  var filled = 0;
+  var industrySelected = document.getElementById('industryGrid').querySelectorAll('.selected').length > 0
+    || document.getElementById('f03extra').value.trim().length > 0;
+  if (industrySelected) filled++;
+  requiredFields.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && el.value.trim().length > 0) filled++;
+  });
+  var total = requiredFields.length + 1;
+  var pct = Math.round((filled / total) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = '필수 항목 ' + filled + ' / ' + total + ' 완료';
+}
+
+function resetForm() {
+  if (!confirm('모든 입력 내용을 초기화할까요?')) return;
+  document.querySelectorAll('input[type=text], textarea').forEach(function(el){ el.value=''; });
+  document.querySelectorAll('.selected').forEach(function(el){ el.classList.remove('selected'); });
+  document.querySelectorAll('.field-card').forEach(function(el){ el.classList.remove('filled','error-card'); });
+  document.querySelectorAll('.char-count').forEach(function(el){ el.textContent='0자'; });
+  updateProgress();
+}
+
+// ── 데이터 수집 ─────────────────────────────────────────
+function collectData() {
+  var industry = getSelected('industryGrid');
+  var extra = document.getElementById('f03extra').value.trim();
+  if (extra) industry += (industry ? ', ' : '') + extra;
+
+  var mood = getSelected('moodGrid');
+  var ref = document.getElementById('f14ref').value.trim();
+  if (ref) mood += (mood ? ' / 참고: ' : '참고: ') + ref;
+
+  return {
+    company:  document.getElementById('f01').value.trim(),
+    products: document.getElementById('f02').value.trim(),
+    industry: industry,
+    strength: document.getElementById('f04').value.trim(),
+    clients:  document.getElementById('f05').value.trim(),
+    equip:    document.getElementById('f06').value.trim(),
+    tel:      document.getElementById('f07tel').value.trim(),
+    email:    document.getElementById('f07email').value.trim(),
+    kakao:    document.getElementById('f07kakao').value.trim() || '없음',
+    address:  document.getElementById('f08').value.trim(),
+    founded:  document.getElementById('f09').value.trim() || '미제공',
+    staff:    document.getElementById('f10').value.trim() || '미제공',
+    cert:     document.getElementById('f11').value.trim() || '미제공',
+    history:  document.getElementById('f12').value.trim() || '미제공',
+    precision:document.getElementById('f13').value.trim() || '미제공',
+    mood:     mood || '미제공',
+    slogan:   document.getElementById('f15').value.trim() || '없음',
+  };
+}
+
+function validateForm(d) {
+  var errors = [];
+  var checks = [
+    { key:'company',  cardId:'card-01', label:'회사명' },
+    { key:'products', cardId:'card-02', label:'대표 제품' },
+    { key:'strength', cardId:'card-04', label:'회사 강점' },
+    { key:'clients',  cardId:'card-05', label:'납품 대상' },
+    { key:'equip',    cardId:'card-06', label:'보유 설비' },
+    { key:'tel',      cardId:'card-07', label:'전화번호' },
+    { key:'email',    cardId:'card-07', label:'이메일' },
+    { key:'address',  cardId:'card-08', label:'주소' },
+  ];
+  document.querySelectorAll('.field-card').forEach(function(c){ c.classList.remove('error-card'); });
+
+  checks.forEach(function(c) {
+    if (!d[c.key]) {
+      errors.push(c.label);
+      document.getElementById(c.cardId).classList.add('error-card');
+    }
+  });
+
+  var industryOk = document.getElementById('industryGrid').querySelectorAll('.selected').length > 0
+    || document.getElementById('f03extra').value.trim().length > 0;
+  if (!industryOk) {
+    errors.push('주요 업종');
+    document.getElementById('card-03').classList.add('error-card');
+  }
+  return errors;
+}
+
+// ── Formspree 전송 ───────────────────────────────────────
+function submitForm() {
+  var d = collectData();
+  var errors = validateForm(d);
+
+  if (errors.length > 0) {
+    showToast('미입력 항목: ' + errors.join(', '), 'error');
+    // 첫 번째 오류 카드로 스크롤
+    var firstError = document.querySelector('.error-card');
+    if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  // 전송 UI
+  document.getElementById('sendingOverlay').classList.add('open');
+  document.getElementById('btnSubmit').disabled = true;
+
+  // 메일 제목: "대한정밀" 상담질문지 제출
+  var subject = '"' + d.company + '" 상담질문지 제출';
+
+  // 본문 구성
+  var body = [
+    '■ barrier 홈페이지 제작 상담 질문지',
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    '',
+    '[필수 항목]',
+    'F-01 회사명: ' + d.company,
+    'F-02 대표 제품: ' + d.products,
+    'F-03 주요 업종: ' + d.industry,
+    'F-04 회사 강점: ' + d.strength,
+    'F-05 납품 대상: ' + d.clients,
+    'F-06 보유 설비: ' + d.equip,
+    'F-07 전화번호: ' + d.tel,
+    'F-07 이메일: ' + d.email,
+    'F-07 카카오: ' + d.kakao,
+    'F-08 주소: ' + d.address,
+    '',
+    '[선택 항목]',
+    'F-09 설립연도: ' + d.founded,
+    'F-10 직원수: ' + d.staff,
+    'F-11 인증/특허: ' + d.cert,
+    'F-12 납품실적: ' + d.history,
+    'F-13 정밀도/규격: ' + d.precision,
+    'F-14 분위기: ' + d.mood,
+    'F-15 강조문구: ' + d.slogan,
+    '',
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    '제출 일시: ' + new Date().toLocaleString('ko-KR'),
+  ].join('\n');
+
+  // Formspree로 전송
+  // ⚠️ 아래 URL의 FORMSPREE_ID를 실제 Formspree Form ID로 교체하세요
+  fetch('https://formspree.io/f/xgojevjg', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      _subject: subject,
+      _replyto: d.email,
+      message: body,
+      회사명: d.company,
+      대표제품: d.products,
+      업종: d.industry,
+      연락처: d.tel,
+      이메일: d.email,
+    })
+  })
+  .then(function(res) {
+    document.getElementById('sendingOverlay').classList.remove('open');
+    if (res.ok) {
+      document.getElementById('doneCompany').textContent = '"' + d.company + '" 상담질문지';
+      document.getElementById('doneScreen').classList.add('open');
+    } else {
+      return res.json().then(function(data) {
+        throw new Error(data.error || '전송 실패');
+      });
+    }
+  })
+  .catch(function(err) {
+    document.getElementById('sendingOverlay').classList.remove('open');
+    document.getElementById('btnSubmit').disabled = false;
+    showToast('전송 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', 'error');
+    console.error(err);
+  });
+}
+
+updateProgress();
+</script>
+</body>
+</html>
