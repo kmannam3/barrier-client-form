@@ -550,12 +550,24 @@ function submitForm() {
   var formData = new FormData();
   formData.append('_subject', subject);
   formData.append('_replyto', d.email);
-  formData.append('message', body);
-  formData.append('회사명', d.company);
-  formData.append('대표제품', d.products);
-  formData.append('업종', d.industry);
-  formData.append('연락처', d.tel);
-  formData.append('이메일', d.email);
+  formData.append('_gotcha', '');
+  formData.append('01_회사명', d.company);
+  formData.append('02_대표제품', d.products);
+  formData.append('03_업종', d.industry);
+  formData.append('04_강점', d.strength);
+  formData.append('05_납품대상', d.clients);
+  formData.append('06_보유설비', d.equip);
+  formData.append('07_전화번호', d.tel);
+  formData.append('08_이메일', d.email);
+  formData.append('09_카카오', d.kakao);
+  formData.append('10_주소', d.address);
+  formData.append('11_설립연도', d.founded);
+  formData.append('12_직원수', d.staff);
+  formData.append('13_인증특허', d.cert);
+  formData.append('14_납품실적', d.history);
+  formData.append('15_정밀도규격', d.precision);
+  formData.append('16_분위기', d.mood);
+  formData.append('17_강조문구', d.slogan);
 
   fetch('https://formspree.io/f/xgojevjg', {
     method: 'POST',
@@ -568,15 +580,15 @@ function submitForm() {
       document.getElementById('doneCompany').textContent = '"' + d.company + '" 상담질문지';
       document.getElementById('doneScreen').classList.add('open');
     } else {
-      return res.json().then(function(data) {
-        throw new Error(data.error || '전송 실패');
+      return res.text().then(function(text) {
+        throw new Error('서버응답: ' + text.substring(0,100));
       });
     }
   })
   .catch(function(err) {
     document.getElementById('sendingOverlay').classList.remove('open');
     document.getElementById('btnSubmit').disabled = false;
-    showToast('전송 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', 'error');
+    showToast('오류: ' + err.message, 'error');
     console.error(err);
   });
 }
